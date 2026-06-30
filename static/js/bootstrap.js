@@ -13,7 +13,7 @@ const toolList = document.getElementById('toolList');
 const historyDrawer = document.getElementById('historyDrawer');
 
 initTools(stage, toolList);
-selectTool('universal');
+buildHome(stage);
 
 document.getElementById('historyBtn')?.addEventListener('click', () => {
   historyDrawer.hidden = !historyDrawer.hidden;
