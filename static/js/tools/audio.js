@@ -1,12 +1,12 @@
 import { h, dropzone, statusBox, escape, fmtSize, downloadBlob } from './ui.js';
-import { isOverQuota, showUpgradeIfNeeded, consumeQuota } from '../quota.js';
+import { isOverQuota, showUpgradeIfNeeded, consumeQuota, showQuotaToast } from '../quota.js';
 import { runConvert } from '../workers/ffmpeg.js';
 
 const PRESETS = [
   { label: 'Convert format', id: 'convert', args: [] },
   { label: 'Trim', id: 'trim', args: [] },
   { label: 'Normalize', id: 'normalize', args: ['-af','loudnorm=I=-16:TP=-1.5:LRA=11'] },
-  { label: 'Speed change', id: 'speed', args: [] },
+  { label: 'Speed change', id: 'speed', args: ['-filter:a','atempo=1.2'] },
   { label: 'Extract from video', id: 'extract', args: ['-vn'] },
 ];
 
@@ -69,10 +69,11 @@ export default function mount(root) {
 
   async function run() {
     if (isOverQuota()) { showUpgradeIfNeeded(); return; }
+    if (!consumeQuota()) { showUpgradeIfNeeded(); return; }
     if (!currentFile) { status.setText('Pick a file first', 'error'); return; }
     runBtn.disabled = true;
     prog.style.display = '';
-    if (!consumeQuota()) { showUpgradeIfNeeded(); return; } fill.style.width = '5%';
+    fill.style.width = '5%';
     result.style.display = 'none';
     try {
       const inExt = '.' + (currentFile.name.split('.').pop() || '').toLowerCase();
@@ -103,6 +104,7 @@ export default function mount(root) {
       dlWrap.appendChild(dlBtn);
       result.style.display = '';
       status.setText('Done ✓', 'ok');
+      showQuotaToast();
     } catch (e) { status.setText('Failed: ' + e.message, 'error'); }
     finally { runBtn.disabled = false; setTimeout(() => { prog.style.display = 'none'; }, 800); }
   }

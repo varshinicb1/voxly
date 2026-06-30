@@ -1,5 +1,5 @@
 import { h, dropzone, statusBox, escape, fmtSize, downloadBlob } from './ui.js';
-import { isOverQuota, showUpgradeIfNeeded, consumeQuota } from '../quota.js';
+import { isOverQuota, showUpgradeIfNeeded, consumeQuota, showQuotaToast } from '../quota.js';
 import { runConvert } from '../workers/ffmpeg.js';
 
 const PRESETS = [
@@ -8,6 +8,7 @@ const PRESETS = [
   { label: 'Trim', id: 'trim', args: [] },
   { label: 'Rotate 90°', id: 'rotate', args: ['-vf','transpose=1'] },
   { label: 'Extract thumbnail', id: 'thumb', args: ['-ss','00:00:01','-vframes','1'] },
+  { label: 'Speed change', id: 'speed', args: ['-filter:a','atempo=1.2'] },
 ];
 
 export default function mount(root) {
@@ -22,7 +23,7 @@ export default function mount(root) {
       document.querySelectorAll('[data-p]').forEach((x) => x.classList.remove('btn--primary'));
       b.classList.add('btn--primary');
       outExtSel.innerHTML = '';
-      const allowed = picked.id === 'thumb' ? ['.jpg','.png'] : ['.mp4','.webp','.gif','.mp3'];
+      const allowed = picked.id === 'thumb' ? ['.jpg','.png'] : ['.mp4','.webp','.gif','.mp3', '.wav'];
       allowed.forEach((e) => {
         const o = document.createElement('option'); o.value = e; o.textContent = e.toUpperCase().slice(1); outExtSel.appendChild(o);
       });
@@ -43,7 +44,7 @@ export default function mount(root) {
   const outRow = h('div', { class: 'flex mt-12' });
   outRow.appendChild(h('span', { style: { fontSize: '12px', color: 'var(--muted)', marginRight: '8px' } }, 'Output:'));
   const outExtSel = document.createElement('select');
-  ['.mp4','.webp','.gif','.mp3'].forEach((e) => {
+  ['.mp4','.webp','.gif','.mp3','.wav'].forEach((e) => {
     const o = document.createElement('option'); o.value = e; o.textContent = e.toUpperCase().slice(1); outExtSel.appendChild(o);
   });
   outRow.appendChild(outExtSel);
@@ -78,17 +79,18 @@ export default function mount(root) {
 
   async function run() {
     if (isOverQuota()) { showUpgradeIfNeeded(); return; }
+    if (!consumeQuota()) { showUpgradeIfNeeded(); return; }
     if (!currentFile) { status.setText('Pick a file first', 'error'); return; }
     runBtn.disabled = true;
     prog.style.display = '';
-    if (!consumeQuota()) { showUpgradeIfNeeded(); return; } fill.style.width = '5%';
+    fill.style.width = '5%';
     result.style.display = 'none';
     try {
       const outExt = outExtSel.value;
       const isImage = outExt === '.jpg' || outExt === '.png';
-      const mime = isImage ? `image/${outExt.slice(1)}` : `video/${outExt.slice(1)}`;
+      const mime = isImage ? `image/${outExt.slice(1)}` : (outExt === '.wav' ? 'audio/wav' : `video/${outExt.slice(1)}`);
       const args = [...picked.args];
-      if (picked.id !== 'thumb' && picked.id !== 'compress') args.push('-crf','23');
+      if (!['thumb','compress'].includes(picked.id)) args.push('-crf','23');
       currentBlob = await runConvert({
         inputBytes: new Uint8Array(await currentFile.arrayBuffer()),
         inputName: currentFile.name,
@@ -110,6 +112,7 @@ export default function mount(root) {
       dlWrap.appendChild(dlBtn);
       result.style.display = '';
       status.setText('Done ✓', 'ok');
+      showQuotaToast();
     } catch (e) { status.setText('Failed: ' + e.message, 'error'); }
     finally { runBtn.disabled = false; setTimeout(() => { prog.style.display = 'none'; }, 800); }
   }

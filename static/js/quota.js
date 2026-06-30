@@ -37,20 +37,24 @@ function showUpgradeModal() {
   if (existing) return;
   const overlay = document.createElement('div');
   overlay.id = 'voxly-upgrade-modal';
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);backdrop-filter:blur(6px)';
   const box = document.createElement('div');
   box.className = 'card';
-  box.style.cssText = 'max-width:520px;width:90%;padding:32px;text-align:center';
+  box.style.cssText = 'max-width:520px;width:90%;padding:32px;text-align:center;border:1px solid rgba(212,175,55,0.3);box-shadow:0 0 0 10px rgba(212,175,55,0.08),0 20px 60px rgba(0,0,0,.8)';
   box.innerHTML = `
-    <div style="font-size:48px;margin-bottom:12px">🚀</div>
-    <h2 style="font-size:22px;font-weight:800;margin-bottom:8px">You've used all ${FREE_LIMIT} free conversions</h2>
-    <p style="color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.6">
+    <div style="font-size:52px;margin-bottom:14px">🚀</div>
+    <h2 style="font-size:24px;font-weight:900;margin-bottom:10px;background:linear-gradient(180deg,#fff,#b8b8b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent">You've used all ${FREE_LIMIT} free conversions</h2>
+    <p style="color:var(--text-secondary);font-size:14px;margin-bottom:26px;line-height:1.6">
       Voxly is free for <b>${FREE_LIMIT} conversions per device</b> — no account, no login.<br/>
-      Unlock unlimited conversions, batch mode, 3D tools, and priority support.
+      Unlock unlimited conversions, batch mode, 3D tools, and priority processing.
     </p>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
-      <button id="voxly-go-pro" class="btn btn--primary" style="padding:12px 24px;font-size:15px">⭐ Unlock Batch + No Quota — ₹149</button>
-      <button id="voxly-custom" class="btn" style="padding:12px 24px;font-size:15px">💼 Custom / Enterprise</button>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:18px">
+      <button id="voxly-go-pro" class="btn btn--primary" style="padding:14px 28px;font-size:15px">
+        ⭐ Unlock Batch + No Quota — ₹149
+      </button>
+      <button id="voxly-custom" class="btn" style="padding:14px 28px;font-size:15px">
+        💼 Custom / Enterprise
+      </button>
     </div>
     <p style="font-size:12px;color:var(--muted)">
       Pro includes: unlimited conversions · batch mode · 3D tools · no ads · priority processing<br/>
@@ -62,12 +66,29 @@ function showUpgradeModal() {
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 
   box.querySelector('#voxly-go-pro').addEventListener('click', () => {
-    alert('Pro subscription coming soon. Meanwhile, contact us for early access!');
+    const ok = confirm('Pro unlocks coming soon. Want early access pricing?');
+    if (ok) {
+      window.location.href = 'mailto:hello@voxly.dev?subject=Early%20Access%20Voxly%20Pro&body=Hi%2C%20I%20want%20early%20access%20to%20Voxly%20Pro.';
+    }
     overlay.remove();
   });
   box.querySelector('#voxly-custom').addEventListener('click', () => {
     const subject = encodeURIComponent('Custom Voxly Solution Inquiry');
-    const body = encodeURIComponent("Hi, I'm interested in a custom/one-time Voxly solution.\n\nMy use case:\n");
+    const body = encodeURIComponent("Hi, I'm interested in a custom/enterprise Voxly solution.\n\nUse case:\n");
     window.location.href = `mailto:hello@voxly.dev?subject=${subject}&body=${body}`;
   });
+}
+
+export function showQuotaToast() {
+  const q = getQuota();
+  if (q.remaining === 0) {
+    showUpgradeIfNeeded();
+    return;
+  }
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = `Free conversions remaining: ${q.remaining}/${q.limit}`;
+  toast.style.borderColor = 'rgba(212,175,55,0.4)';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2200);
 }

@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Voxly — Private Media Kit. No Uploads.</title>
   <meta name="description" content="Audio, video, image, PDF, doc and 3D file tools. Convert, compress, edit — 100% in your browser. Nothing leaves your device." />
-  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="theme-color" content="#08080b" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icons/voxly-64.png" type="image/png" />
   <link rel="apple-touch-icon" href="./icons/voxly-192.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./css/site.css" />
 </head>
 <body>
@@ -23,13 +23,13 @@
       <span class="badge badge--muted" id="engineStatus">⚙ engine: detecting…</span>
     </div>
     <div class="topbar-right">
+      <span class="pill" id="quotaBadge" style="margin-right:8px">Free: 5/5</span>
       <button class="ghost-btn" id="installPwa" hidden>⬇ Install</button>
       <button class="ghost-btn" id="historyBtn">🕒 History</button>
     </div>
   </header>
 
   <main class="shell">
-    <!-- Sidebar -->
     <nav class="sidebar" aria-label="Tools">
       <div class="sidebar-search">
         <input id="toolSearch" type="search" placeholder="Search tools…" autocomplete="off" />
@@ -37,7 +37,6 @@
       <ul class="tool-list" id="toolList"></ul>
     </nav>
 
-    <!-- Stage -->
     <section class="stage">
       <div class="stage-header">
         <h1 class="stage-title" id="stageTitle">Welcome to Voxly</h1>
@@ -55,7 +54,6 @@
     <div class="history-body" id="historyBody"></div>
   </aside>
 
-  <!-- Bottom ad slot (AdSense) -->
   <div class="ad-slot ad-slot--bottom" id="appUpgradeCta" aria-hidden="true"></div>
 
   <script type="module" src="./js/bootstrap.js"></script>

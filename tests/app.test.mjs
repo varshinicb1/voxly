@@ -50,19 +50,22 @@ for (const rel of required) {
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 assert(html.includes('Voxly'), 'index missing brand');
 assert(html.includes('manifest.webmanifest'), 'index missing manifest link');
+assert(html.includes('appUpgradeCta'), 'index missing upgrade CTA');
 
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8'));
 assert(manifest.name === 'Voxly', 'manifest name mismatch');
 assert(Array.isArray(manifest.icons) && manifest.icons.length >= 2, 'missing manifest icons');
 
 const css = fs.readFileSync(path.join(ROOT, 'css/site.css'), 'utf8');
-assert(css.includes('topbar'), 'css missing topbar');
+assert(css.includes('topbar'), 'css missing topbar layout styles');
+assert(css.includes('stage-title'), 'css missing stage title styles');
 
 const quota = fs.readFileSync(path.join(ROOT, 'js/quota.js'), 'utf8');
-assert(quota.includes('showUpgradeIfNeeded'), 'quota.js missing upgrades');
+assert(quota.includes('showUpgradeIfNeeded'), 'quota.js missing upgrade modal hook');
 
 const universal = fs.readFileSync(path.join(ROOT, 'js/tools/universal.js'), 'utf8');
-assert(universal.includes('routeConvert'), 'universal missing routeConvert');
+assert(universal.includes('routeConvert'), 'universal.js missing routeConvert router');
+assert(universal.includes('png') && universal.includes('mp4'), 'universal rules should include image/video formats');
 
 const engine = fs.readFileSync(path.join(ROOT, 'js/engine.js'), 'utf8');
 assert(engine.includes('downloadBlob'), 'engine.js missing downloadBlob helper');
