@@ -167,47 +167,62 @@ export function selectTool(id) {
 
 export function buildHome(container) {
   container.innerHTML = `
-    <div class="card mt-24" style="max-width:640px">
-      <h2 style="margin-bottom:8px">What would you like to do?</h2>
-      <p style="color:var(--muted);margin-bottom:16px">
-        Everything runs in your browser. Nothing is uploaded. Zero cost for you.
-      </p>
-      <div class="grid grid-3">
-        ${CATEGORIES.slice(0,4).map(c => `
-          <button class="btn" data-jump="${c.id}">${c.icon}<br/><b>${c.label}</b></button>
-        `).join('')}
+    <div class="card mt-24" style="max-width:980px">
+      <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between">
+        <div>
+          <h1 class="stage-title" style="margin-bottom:6px">Your media kit. Local. Fast. Private.</h1>
+          <p class="stage-subtitle" style="max-width:520px">
+            Convert audio, video, images, PDFs, docs, and 3D files in your browser. Nothing leaves your device.
+          </p>
+          <div class="flex mt-12">
+            <button class="btn btn--primary" data-jump="universal">🪄 Start converting</button>
+            <button class="btn" data-jump="audio">🔊 Audio</button>
+            <button class="btn" data-jump="video">🎬 Video</button>
+            <button class="btn" data-jump="image">🖼 Image</button>
+            <button class="btn" data-jump="pdf">📕 PDF</button>
+          </div>
+        </div>
       </div>
     </div>
+
     <div class="mt-24 grid grid-3">
       ${[
         ['🔒', 'Never leaves your device', 'WASM, not cloud. Even on a plane.'],
         ['⚡', 'Edge-speed', 'No server round-trips. Results in ms.'],
         ['💰', 'Free to use', 'Ad-supported. No account needed.'],
         ['🌍', 'Works offline', 'Service worker caches the toolchain.'],
-        ['📦', '50+ tools', 'Audio, video, image, PDF, docs, 3D.'],
+        ['📦', '60+ tools', 'Audio, video, image, PDF, docs, 3D.'],
         ['🪄', 'Anything → Anything', 'Drop any file, pick any format.'],
+        ['✨', 'Premium workflow', 'Batch-ready, history, downloads, and editor presets.'],
+        ['🛡', 'Privacy first', 'No telemetry. No upload queue. No cloud fallback required.'],
       ].map(([icon, h, p]) => `
         <div class="card">
           <div style="font-size:28px">${icon}</div>
-          <div style="font-weight:600;margin-top:6px">${h}</div>
+          <div style="font-weight:700;margin-top:6px">${h}</div>
           <div style="color:var(--muted);font-size:13px;margin-top:2px">${p}</div>
         </div>
       `).join('')}
     </div>
+
     <div class="ad-slot ad-slot--inline mt-24" style="position:static;height:90px;border:1px dashed var(--border);border-radius:8px">
       Ad space — 728×90
     </div>
   `;
+
+  const syncJump = (id) => {
+    const t = TOOLS.find((x) => x.category === id || x.id === id);
+    if (t) selectTool(t.id);
+    else {
+      const c = CATEGORIES.find((x) => x.id === id);
+      const title = document.getElementById('stageTitle');
+      const sub = document.getElementById('stageSubtitle');
+      if (title) title.textContent = c?.label || 'Voxly';
+      if (sub) sub.textContent = c?.label || '';
+    }
+  };
+
   container.querySelectorAll('[data-jump]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.jump;
-      const t = TOOLS.find((x) => x.category === id);
-      if (t) selectTool(t.id);
-      else {
-        const c = CATEGORIES.find((x) => x.id === id);
-        document.getElementById('stageSubtitle').textContent = c?.label || '';
-      }
-    });
+    btn.addEventListener('click', () => syncJump(btn.dataset.jump));
   });
 }
 
