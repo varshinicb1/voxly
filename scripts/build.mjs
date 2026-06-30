@@ -24,13 +24,10 @@ function walk(p, out) {
   }
 }
 
-// Reset clean output dir
-const out = [];
 fs.rmSync(path.join(process.cwd(), DST), { recursive: true, force: true });
 fs.mkdirSync(path.join(process.cwd(), DST), { recursive: true });
 rcopy(path.join(process.cwd(), SRC), path.join(process.cwd(), DST));
 
-// Write Pages-friendly root index
 fs.rmSync(path.join(process.cwd(), DST, 'index.html'), { force: true });
 const indexSrc = fs
   .readFileSync(path.join(process.cwd(), SRC, 'index.html'), 'utf8')
@@ -42,7 +39,6 @@ const indexSrc = fs
   );
 fs.writeFileSync(path.join(process.cwd(), DST, 'index.html'), indexSrc, 'utf8');
 
-// Security headers for Pages + WASM/SharedArrayBuffer
 fs.writeFileSync(
   path.join(process.cwd(), DST, '_routes.json'),
   JSON.stringify(
@@ -66,6 +62,7 @@ fs.writeFileSync(
   'utf8'
 );
 
+const out = [];
 walk(path.join(process.cwd(), DST), out);
 const total = out.reduce((a, p) => a + fs.statSync(p).size, 0);
 const kb = Math.round(total / 1024);
